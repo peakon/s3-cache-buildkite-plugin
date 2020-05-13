@@ -1,0 +1,46 @@
+name: AWS S3 cache plugin
+description: Save / restore cache to / from AWS S3 bucket
+author: https://github.com/peakon
+requirements:
+  - docker
+  - aws
+  - tar
+configuration:
+  properties:
+    fail_on_error:
+      type: boolean
+    save:
+      type: array
+      minimum: 1
+      items:
+        type: object
+        properties:
+          key: 
+            type: string
+          paths:
+            type: [string, array]
+            minimum: 1
+          when: 
+            type: string
+            enum: 
+              - always
+              - on_success
+              - on_failure
+        required: 
+          - key
+          - paths
+    restore:
+      type: array
+      minimum: 1
+      items:
+        type: object
+        properties:
+          keys:
+            type: array
+            minimum: 1
+            items:
+              type: string
+        required:
+          - keys
+  
+additionalProperties: false

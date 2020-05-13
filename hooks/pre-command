@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+set -eEuo pipefail
+
+if [[ "${BUILDKITE_PLUGIN_S3_CACHE_RESTORE:-false}" == "false" ]]; then
+    echo "~~~ Skipping s3-cache plugin pre-command hook, as plugin configuration does not contain 'restore' key"
+    exit 0
+fi
+
+DOCKER_REPO=peakon/s3-cache-buildkite-plugin
+
+on_failure() {
+    echo "Command failed with exit status: $?"
+    if [[ "${BUILDKITE_PLUGIN_S3_CACHE_FAIL_ON_ERROR:-false}" != "true" ]]; then
+        echo "Suppressing failure so pipeline can continue (if you do not want this behaviour, set fail_on_error to true)"
+        exit 0
+    fi
+}
+
+trap on_failure ERR
+
+# cd to plugin directory
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+TAG=$(git describe --tags --exact-match 2> /dev/null || true)
+
+if [[ -n "$TAG" ]]; then
+    echo "Found tag $TAG, pulling from docker hub"
+    IMAGE="$DOCKER_REPO:$TAG"
+    docker pull "$IMAGE"
+else
+    echo "No tag found, building image locally"
+    IMAGE=s3-cache-buildkite-plugin:$BUILDKITE_JOB_ID
+    docker build -t "$IMAGE" .
+fi
+
+pushd "${BUILDKITE_BUILD_CHECKOUT_PATH}" >/dev/null
+
+docker run --rm \
+      --label "com.buildkite.job-id=${BUILDKITE_JOB_ID}" \
+      --workdir=/workdir \
+      --volume=$(pwd):/workdir \
+      -it \
+      --rm \
+  -e BUILDKITE_BUILD_ID \ 
+  -e BUILDKITE_JOB_ID \
+  -e BUILDKITE_PLUGINS \
+  -e BUILDKITE_PIPELINE_SLUG \
+  -e HTTP_PROXY -e HTTPS_PROXY \
+  $IMAGE --action=restore --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix="$BUILDKITE_PIPELINE_SLUG"
+
+popd >/dev/null

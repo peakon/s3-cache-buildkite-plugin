@@ -1,0 +1,56 @@
+{
+  "name": "s3-cache-buildkite-plugin",
+  "version": "1.0.0",
+  "description": "Save and restore cache to and from AWS S3.",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peakon/s3-cache-buildkite-plugin"
+  },
+  "scripts": {
+    "localstack:start": "docker-compose up -d localstack",
+    "localstack:wait": "./wait-for-localstack.sh", 
+    "localstack:stop": "docker-compose down",
+    "localstack:setup": "aws --profile localstack --endpoint-url=http://localhost:4566 s3api create-bucket --bucket buildkite-cache --region eu-west-1",
+    "pretest": "npm run localstack:start && npm run localstack:wait && npm run localstack:setup",
+    "posttest": "npm run localstack:stop",
+    "test": "LOCALSTACK=true jest",
+    "watch": "npm run test -- --watch",
+    "lint": "eslint lib",
+    "format": "prettier --check --write lib/**/*.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "prettier": {},
+  "eslintConfig": {
+    "extends": [
+      "prettier"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 8
+    },
+    "rules": {
+      "semi": "error",
+      "no-console": "error"
+    }
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "lib/**/*.js"
+    ]
+  },
+  "dependencies": {
+    "aws-sdk": "^2.675.0",
+    "crypto": "^1.0.1",
+    "meow": "^7.0.1",
+    "string-replace-async": "^1.2.1",
+    "tar": "^6.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^7.0.0",
+    "eslint-config-prettier": "^6.11.0",
+    "fs-extra": "^9.0.0",
+    "jest": "^26.0.1",
+    "prettier": "^2.0.5"
+  }
+}
