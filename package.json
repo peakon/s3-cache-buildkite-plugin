@@ -9,7 +9,7 @@
   },
   "scripts": {
     "localstack:start": "docker-compose up -d localstack",
-    "localstack:wait": "./wait-for-localstack.sh", 
+    "localstack:wait": "./wait-for-localstack.sh",
     "localstack:stop": "docker-compose down",
     "localstack:setup": "aws --profile localstack --endpoint-url=http://localhost:4566 s3api create-bucket --bucket buildkite-cache --region eu-west-1",
     "pretest": "npm run localstack:start && npm run localstack:wait && npm run localstack:setup",
@@ -42,6 +42,7 @@
   "dependencies": {
     "aws-sdk": "^2.675.0",
     "crypto": "^1.0.1",
+    "fs-extra": "^9.0.0",
     "meow": "^7.0.1",
     "string-replace-async": "^1.2.1",
     "tar": "^6.0.2"
@@ -49,7 +50,6 @@
   "devDependencies": {
     "eslint": "^7.0.0",
     "eslint-config-prettier": "^6.11.0",
-    "fs-extra": "^9.0.0",
     "jest": "^26.0.1",
     "prettier": "^2.0.5"
   }

@@ -7,7 +7,8 @@ COPY package.json package-lock.json /app/
 RUN npm install --no-audit --production
 
 COPY lib /app/lib
+COPY entrypoint.sh /app/lib/
 
 ENV NODE_ENV production
 
-# ENTRYPOINT [ "node",  ]
+ENTRYPOINT ["/app/lib/entrypoint.sh"]
