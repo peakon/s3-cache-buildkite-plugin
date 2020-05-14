@@ -37,17 +37,17 @@ fi
 
 pushd "${BUILDKITE_BUILD_CHECKOUT_PATH}" >/dev/null
 
-docker run --rm \
-      --label "com.buildkite.job-id=${BUILDKITE_JOB_ID}" \
-      --workdir=/workdir \
-      --volume=$(pwd):/workdir \
-      -it \
-      --rm \
-  -e BUILDKITE_BUILD_ID \ 
-  -e BUILDKITE_JOB_ID \
-  -e BUILDKITE_PLUGINS \
-  -e BUILDKITE_PIPELINE_SLUG \
-  -e HTTP_PROXY -e HTTPS_PROXY \
-  $IMAGE --action=restore --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix="$BUILDKITE_PIPELINE_SLUG"
+echo docker run \
+    -e BUILDKITE_BUILD_ID \
+    -e BUILDKITE_JOB_ID \
+    -e BUILDKITE_PLUGINS \
+    -e BUILDKITE_PIPELINE_SLUG \
+    -e HTTP_PROXY -e HTTPS_PROXY \
+    -l "com.buildkite.job-id=${BUILDKITE_JOB_ID}" \
+    -w /workdir \
+    -v $(pwd):/workdir \
+    -it \
+    --rm \
+    $IMAGE --action=restore --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix="$BUILDKITE_PIPELINE_SLUG"
 
 popd >/dev/null

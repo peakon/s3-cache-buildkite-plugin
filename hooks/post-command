@@ -2,7 +2,7 @@
 
 set -eEuo pipefail
 
-if [[ "${BUILDKITE_PLUGIN_S3_CACHE_SAVE_0_KEY:-false}" == "false" ]]; then
+if [[ "${q:-false}" == "false" ]]; then
     echo "  ~~~ Skipping s3-cache plugin post-command hook, as plugin configuration does not contain any keys to save"
     exit 0
 fi
@@ -36,16 +36,16 @@ fi
 pushd "${BUILDKITE_BUILD_CHECKOUT_PATH}" >/dev/null
 
 docker run --rm \
-      --label "com.buildkite.job-id=${BUILDKITE_JOB_ID}" \
-      --workdir=/workdir \
-      --volume=$(pwd):/workdir \
-      -it \
-      --rm \
-  -e BUILDKITE_BUILD_ID \ 
-  -e BUILDKITE_JOB_ID \
-  -e BUILDKITE_PLUGINS \
-  -e BUILDKITE_PIPELINE_SLUG \
-  -e HTTP_PROXY -e HTTPS_PROXY \
-  $IMAGE --action=save --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix=$BUILDKITE_PIPELINE_SLUG --stepExitCode="$BUILDKITE_COMMAND_EXIT_STATUS"
+    -e BUILDKITE_BUILD_ID \
+    -e BUILDKITE_JOB_ID \
+    -e BUILDKITE_PLUGINS \
+    -e BUILDKITE_PIPELINE_SLUG \
+    -e HTTP_PROXY -e HTTPS_PROXY \
+    -l "com.buildkite.job-id=${BUILDKITE_JOB_ID}" \
+    -w /workdir \
+    -v $(pwd):/workdir \
+    -it \
+    --rm \
+    $IMAGE --action=save --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix=$BUILDKITE_PIPELINE_SLUG --stepExitCode="$BUILDKITE_COMMAND_EXIT_STATUS"
 
 popd >/dev/null
