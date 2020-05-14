@@ -48,6 +48,6 @@ docker run \
     -v "$BUILDKITE_BUILD_CHECKOUT_PATH:/workdir" \
     -it \
     --rm \
-    $IMAGE --action=restore --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix="$BUILDKITE_PIPELINE_SLUG"
+    $IMAGE --action=restore --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix="$BUILDKITE_ORGANIZATION_SLUG/$BUILDKITE_PIPELINE_SLUG"
 
 ls -lha
