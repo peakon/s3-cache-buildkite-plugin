@@ -35,8 +35,6 @@ fi
 
 cd "$BUILDKITE_BUILD_CHECKOUT_PATH"
 
-ls -lha 
-
 docker run \
     -e BUILDKITE_BUILD_ID \
     -e BUILDKITE_JOB_ID \
@@ -49,5 +47,3 @@ docker run \
     -it \
     --rm \
     $IMAGE --action=restore --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix="$BUILDKITE_ORGANIZATION_SLUG/$BUILDKITE_PIPELINE_SLUG"
-
-ls -lha
