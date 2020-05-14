@@ -37,7 +37,9 @@ fi
 
 pushd "${BUILDKITE_BUILD_CHECKOUT_PATH}" >/dev/null
 
-echo docker run \
+ls -lha 
+
+docker run \
     -e BUILDKITE_BUILD_ID \
     -e BUILDKITE_JOB_ID \
     -e BUILDKITE_PLUGINS \
@@ -51,3 +53,5 @@ echo docker run \
     $IMAGE --action=restore --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix="$BUILDKITE_PIPELINE_SLUG"
 
 popd >/dev/null
+
+ls -lha

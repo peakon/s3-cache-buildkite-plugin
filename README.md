@@ -26,7 +26,7 @@ steps:
 
 ### Prerequisites
 
-Make sure to set `BUILDKITE_PLUGIN_CACHE_S3_BUCKET_NAME=your-cache-bucket-name` before using this plugin.
+Make sure to set `BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME=your-cache-bucket-name` before using this plugin.
 
 ### Plugin
 
