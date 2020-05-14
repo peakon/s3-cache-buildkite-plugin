@@ -20,6 +20,8 @@ configuration:
           paths:
             type: [string, array]
             minimum: 1
+          overwrite:
+            type: boolean
           when: 
             type: string
             enum: 

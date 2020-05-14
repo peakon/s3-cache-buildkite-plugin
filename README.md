@@ -12,13 +12,14 @@ steps:
     plugins:
       - peakon/s3-cache#v1.1.0:
           save:
-            - key: 'v1-node-modules-{{ checksum("package-lock.json") }}'
+            - key: 'v1-node-modules-{{ checksum("package-lock.json") }}' # required
               paths: [ "node_modules" ] # required, array of strings
-              when: always # optional, one of {always, on_success, on_failure}, default: on_success
+              when: on_success # optional, one of {always, on_success, on_failure}, default: on_success
+              overwrite: false # optional, set true to overwrite cache on S3 even if object already exists
           restore:
             - keys:
                 - 'v1-node-modules-{{ checksum "package-lock.json" }}'
-                - 'v1-node-modules-' # will load latest cache starting with v1-node-modules-
+                - 'v1-node-modules-' # will load latest cache starting with v1-node-modules- (not yet implemented)
 ```
 
 ## Configuration
