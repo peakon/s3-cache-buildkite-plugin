@@ -2,6 +2,9 @@
 
 set -eEuo pipefail
 
+curl 169.254.169.254/latest/meta-data/
+ls -lha ~/.aws
+
 if [[ "${BUILDKITE_PLUGIN_S3_CACHE_RESTORE_0_KEYS_0:-false}" == "false" ]]; then
     echo "  ~~~ Skipping s3-cache plugin pre-command hook, as plugin configuration does not specify keys to restore"
     exit 0
