@@ -33,7 +33,7 @@ else
     docker build -t "$IMAGE" .
 fi
 
-pushd "${BUILDKITE_BUILD_CHECKOUT_PATH}" >/dev/null
+cd "$BUILDKITE_BUILD_CHECKOUT_PATH"
 
 docker run --rm \
     -e BUILDKITE_BUILD_ID \

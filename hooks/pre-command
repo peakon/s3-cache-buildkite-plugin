@@ -33,6 +33,8 @@ else
     docker build -t "$IMAGE" .
 fi
 
+cd "$BUILDKITE_BUILD_CHECKOUT_PATH"
+
 ls -lha 
 
 docker run \
