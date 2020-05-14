@@ -2,6 +2,8 @@
 
 set -eEuo pipefail
 
+env
+
 if [[ "${BUILDKITE_PLUGIN_S3_CACHE_RESTORE:-false}" == "false" ]]; then
     echo "~~~ Skipping s3-cache plugin pre-command hook, as plugin configuration does not contain 'restore' key"
     exit 0
