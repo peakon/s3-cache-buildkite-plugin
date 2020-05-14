@@ -10,7 +10,6 @@ fi
 DOCKER_REPO=peakon/s3-cache-buildkite-plugin
 
 on_failure() {
-    popd >/dev/null
     echo "Command failed with exit status: $?"
     if [[ "${BUILDKITE_PLUGIN_S3_CACHE_FAIL_ON_ERROR:-false}" != "true" ]]; then
         echo "Suppressing failure so pipeline can continue (if you do not want this behaviour, set fail_on_error to true)"
@@ -44,9 +43,7 @@ docker run --rm \
     -e HTTP_PROXY -e HTTPS_PROXY \
     -l "com.buildkite.job-id=${BUILDKITE_JOB_ID}" \
     -w /workdir \
-    -v $(pwd):/workdir \
+    -v "$BUILDKITE_BUILD_CHECKOUT_PATH:/workdir" \
     -it \
     --rm \
     $IMAGE --action=save --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix=$BUILDKITE_PIPELINE_SLUG --stepExitCode="$BUILDKITE_COMMAND_EXIT_STATUS"
-
-popd >/dev/null
