@@ -1,6 +1,6 @@
 {
   "name": "s3-cache-buildkite-plugin",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Save and restore cache to and from AWS S3.",
   "main": "lib/index.js",
   "repository": {
