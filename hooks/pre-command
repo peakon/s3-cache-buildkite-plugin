@@ -2,8 +2,6 @@
 
 set -eEuo pipefail
 
-env
-
 if [[ "${BUILDKITE_PLUGIN_S3_CACHE_RESTORE_0_KEYS_0:-false}" == "false" ]]; then
     echo "  ~~~ Skipping s3-cache plugin pre-command hook, as plugin configuration does not specify keys to restore"
     exit 0
@@ -12,6 +10,7 @@ fi
 DOCKER_REPO=peakon/s3-cache-buildkite-plugin
 
 on_failure() {
+    popd >/dev/null
     echo "Command failed with exit status: $?"
     if [[ "${BUILDKITE_PLUGIN_S3_CACHE_FAIL_ON_ERROR:-false}" != "true" ]]; then
         echo "Suppressing failure so pipeline can continue (if you do not want this behaviour, set fail_on_error to true)"
