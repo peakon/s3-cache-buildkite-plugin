@@ -40,6 +40,7 @@ docker run \
     -e BUILDKITE_JOB_ID \
     -e BUILDKITE_PLUGINS \
     -e BUILDKITE_PIPELINE_SLUG \
+    -e BUILDKITE_BRANCH \
     -e HTTP_PROXY -e HTTPS_PROXY \
     -l "com.buildkite.job-id=${BUILDKITE_JOB_ID}" \
     -w /workdir \
