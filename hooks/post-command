@@ -7,8 +7,6 @@ if [[ "${BUILDKITE_PLUGIN_S3_CACHE_SAVE_0_KEY:-false}" == "false" ]]; then
     exit 0
 fi
 
-BUILDKITE_PLUGIN_S3_CACHE_GZIP="{BUILDKITE_PLUGIN_S3_CACHE_GZIP:-false}"
-
 DOCKER_REPO=peakon/s3-cache-buildkite-plugin
 
 on_failure() {
@@ -48,4 +46,4 @@ docker run --rm \
     -v "$BUILDKITE_BUILD_CHECKOUT_PATH:/workdir" \
     -it \
     --rm \
-    $IMAGE --action=save --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix="$BUILDKITE_ORGANIZATION_SLUG/$BUILDKITE_PIPELINE_SLUG" --stepExitCode="$BUILDKITE_COMMAND_EXIT_STATUS" --gzip="$BUILDKITE_PLUGIN_S3_CACHE_GZIP"
+    $IMAGE --action=save --bucket=$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME --keyPrefix="$BUILDKITE_ORGANIZATION_SLUG/$BUILDKITE_PIPELINE_SLUG" --stepExitCode="$BUILDKITE_COMMAND_EXIT_STATUS"
