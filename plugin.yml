@@ -6,6 +6,7 @@ requirements:
   - tar
   - awk
   - sed
+  - jq
 configuration:
   properties:
     fail_on_error:
