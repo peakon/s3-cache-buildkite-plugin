@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"save\":[{\"key\":\"v1-node-modules-{{ checksum \\\"package-lock.json\\\" }}\",\"paths\":[\"node_modules\", \"node_modules/.bin\"]},{\"key\":\"v1-eslint-cache-{{ .Environment.BUILDKITE_BRANCH }}\",\"paths\":[\"node_modules/.eslintcache\"],\"overwrite\":true}],\"restore\":[{\"keys\":[\"v1-node-modules-{{ checksum \\\"package-lock.json\\\" }}\"]},{\"keys\":[\"v1-eslint-cache-{{ .Environment.BUILDKITE_BRANCH }}\",\"v1-eslint-cache-master\"]}]}},{\"github.com/buildkite-plugins/docker-buildkite-plugin#v3.5.0\":{\"image\":\"peakon/node:13.8.0-ci\",\"environment\":[\"NPM_TOKEN\"],\"propagate-environment\":true}},{\"github.com/seek-oss/aws-sm-buildkite-plugin#v2.0.0\":{\"env\":{\"CODECOV_TOKEN\":\"buildkite/dashboard/codecov-token\"}}}]"
+# export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"save\":[{\"key\":\"v1-node-modules-{{ checksum \\\"package-lock.json\\\" }}\",\"paths\":[\"node_modules\", \"node_modules/.bin\"]},{\"key\":\"v1-eslint-cache-{{ .Environment.BUILDKITE_BRANCH }}\",\"paths\":[\"node_modules/.eslintcache\"],\"overwrite\":true}],\"restore\":[{\"keys\":[\"v1-node-modules-{{ checksum \\\"package-lock.json\\\" }}\"]},{\"keys\":[\"v1-eslint-cache-{{ .Environment.BUILDKITE_BRANCH }}\",\"v1-eslint-cache-master\"]}]}},{\"github.com/buildkite-plugins/docker-buildkite-plugin#v3.5.0\":{\"image\":\"peakon/node:13.8.0-ci\",\"environment\":[\"NPM_TOKEN\"],\"propagate-environment\":true}},{\"github.com/seek-oss/aws-sm-buildkite-plugin#v2.0.0\":{\"env\":{\"CODECOV_TOKEN\":\"buildkite/dashboard/codecov-token\"}}}]"
+# export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"restore\":[{\"keys\":[\"v1-node-modules-{{ checksum \\\"package-lock.json\\\" }}\"]},{\"keys\":[\"v1-eslint-cache-{{ .Environment.BUILDKITE_BRANCH }}\",\"v1-eslint-cache-master\"]}]}}]"
 
 # returns a JSON object with plugin configuration 
 function getPluginConfig {
@@ -22,7 +23,7 @@ function getRestoreConfig {
 # returns a JSON with save config
 function getSaveConfig {
   local pluginConfig=$(getPluginConfig)
-  echo $1 | jq '.save'
+  echo $pluginConfig | jq '.save'
 }
 
 # $1 template string
@@ -30,7 +31,9 @@ function getCacheKey {
   local cache_key=$1
   while [[ "$cache_key" == *"{{"* ]]; do
     cache_key_prefix=$(echo "$cache_key" | sed -e 's/{.*//')
-    template_value=$(echo "$cache_key" | sed -e 's/^[^\{{]*[^A-Za-z\.]*//' -e 's/.}}.*$//' | tr -d \' | tr -d \")
+    template_value=$(echo "$cache_key" | sed -e 's/^[^\{{]*[^A-Za-z\.]*//' -e 's/\s*}}.*$//' | tr -d \' | tr -d \")
+
+    # echo $template_value
 
     local result=unsupported
     if [[ $template_value == *"checksum"* ]]; then
@@ -59,28 +62,46 @@ function getCacheItemsForRestore {
   echo $1 | jq -r '.[] | "\(.keys | [.[] | @base64] | join(" "))"'
 }
 
-# S3_PREFIX="${BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME}/${BUILDKITE_ORGANIZATION_SLUG}/${BUILDKITE_PIPELINE_SLUG}"
+function s3ObjectKey {
+  echo "${BUILDKITE_ORGANIZATION_SLUG}/${BUILDKITE_PIPELINE_SLUG}/${1}.tar.gz"
+}
+
+function s3Path {
+  local s3Key=$(s3ObjectKey "$1")
+  echo "s3://${BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME}/${s3Key}"
+}
 
 # $1 - cacheKey
-# $2 - owerwrite (true/false)
+function s3Exists {
+  local s3Key=$(s3ObjectKey "$1")
+  aws s3api head-object --bucket "$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME" --key $s3Key || not_exist=true
+  if [ $not_exist ]; then
+    echo "false"
+  else
+    echo "true"
+  fi
+}
+
+# $1 - cacheKey
 # $2 - a string with space separated file paths
 function s3Upload {
-  echo "s3 upload called for $1"
-
-  local s3_path="s3://${S3_PREFIX}/$1"
-  local overwrite=$2
-  local localPaths=($3)
-  # TODO check if s3 key already exists before upload
-  # tar --ignore-failed-read -cz ${localPaths[@]} | aws s3 cp - "$s3_path"
-  # tar -cz ${localPaths[@]} | aws s3 cp - "$s3_path"
+  local s3_path=$(s3Path "$1")
+  local localPaths=($2)
+  set +e
+  tar --ignore-failed-read -cz ${localPaths[@]} | aws s3 cp - "$s3_path"
+  if [ $? -ne 0 ]; then
+    echo "false"
+  else
+    echo "true"
+  fi
+  set -e
 }
 
 # $1 - cacheKey
 function s3Restore {
-  echo "s3 download called for $1"
-  local s3_path="s3://${S3_PREFIX}/$1"
+  local s3_path=$(s3Path "$1")
   set +e
-  aws s3 cp "$s3_path" - | tar -xz
+  output=$(aws s3 cp "$s3_path" - | tar -xz)
   if [ $? -ne 0 ]; then
     echo "false"
   else
@@ -102,11 +123,11 @@ function saveCache {
   local saveConfig=$(getSaveConfig)
   if [[ "$saveConfig" == "null" ]]; then 
       echo "No save config found, skipping"
-      exit 0
+      return
   fi
 
   local tempFile=$(makeTempFile)
-  getCacheItemsForSave "$saveConfig" > tempFile
+  getCacheItemsForSave "$saveConfig" > $tempFile
 
   while read keyTemplateBase64 pathsBase64 overwrite when
   do
@@ -131,22 +152,35 @@ function saveCache {
     fi
     
     if [[ "$when" =~ $uploadConditions ]]; then
-      s3Upload "$key" "$overwrite" "$paths"
+      local alreadyOnS3=$(s3Exists "$key")
+      if [[ "$alreadyOnS3" == "false" ]]; then
+        echo "Uploading new cache for key: $key"
+      elif [[ "$overwrite" == "true" ]]; then
+        echo "Overwriting existing cache for key: $key"
+      else 
+        echo "Cache already exists (and will not be updated) for key: $key"
+      fi
+      local isSaved=$(s3Upload "$key" "$paths")
+      if [[ "$isSaved" == "true" ]]; then
+        echo "Uploaded new cache for key: $key"
+      else
+        echo "Failed to upload new cache for key: $ke"
+      fi
     else
-      echo "skipping upload"
+      echo "Skipping cache upload for key: $key ('when' condition is not met)"
     fi
-  done < tempFile
+  done < $tempFile
 }
 
 function restoreCache {
   local restoreConfig=$(getRestoreConfig)
   if [[ "$restoreConfig" == "null" ]]; then 
       echo "No restore config found, skipping"
-      exit 0
+      return
   fi
   
   local tempFile=$(makeTempFile)
-  getCacheItemsForRestore "$restoreConfig" > tempFile
+  getCacheItemsForRestore "$restoreConfig" > $tempFile
 
   while read cacheItemKeyTemplates
   do
@@ -163,5 +197,5 @@ function restoreCache {
         echo "Failed to restore $cacheKey"
       fi
     done
-  done < tempFile
+  done < $tempFile
 }
