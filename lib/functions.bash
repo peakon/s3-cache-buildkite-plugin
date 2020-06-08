@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"save\":[{\"key\":\"v1-node-modules-{{ checksum \\\"package-lock.json\\\" }}\",\"paths\":[\"node_modules\", \"node_modules/.bin\"]},{\"key\":\"v1-eslint-cache-{{ .Environment.BUILDKITE_BRANCH }}\",\"paths\":[\"node_modules/.eslintcache\"],\"overwrite\":true}],\"restore\":[{\"keys\":[\"v1-node-modules-{{ checksum \\\"package-lock.json\\\" }}\"]},{\"keys\":[\"v1-eslint-cache-{{ .Environment.BUILDKITE_BRANCH }}\",\"v1-eslint-cache-master\"]}]}},{\"github.com/buildkite-plugins/docker-buildkite-plugin#v3.5.0\":{\"image\":\"peakon/node:13.8.0-ci\",\"environment\":[\"NPM_TOKEN\"],\"propagate-environment\":true}},{\"github.com/seek-oss/aws-sm-buildkite-plugin#v2.0.0\":{\"env\":{\"CODECOV_TOKEN\":\"buildkite/dashboard/codecov-token\"}}}]"
-# export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"restore\":[{\"keys\":[\"v1-node-modules-{{ checksum \\\"package-lock.json\\\" }}\"]},{\"keys\":[\"v1-eslint-cache-{{ .Environment.BUILDKITE_BRANCH }}\",\"v1-eslint-cache-master\"]}]}}]"
-
 # returns a JSON object with plugin configuration 
 function getPluginConfig {
   local config=$(echo $BUILDKITE_PLUGINS | jq '. | map(to_entries) | flatten | map(select(.key | match("peakon/s3-cache";"i"))) | .[0].value')
@@ -32,8 +29,6 @@ function getCacheKey {
   while [[ "$cache_key" == *"{{"* ]]; do
     cache_key_prefix=$(echo "$cache_key" | sed -e 's/{.*//')
     template_value=$(echo "$cache_key" | sed -e 's/^[^\{{]*[^A-Za-z\.]*//' -e 's/\s*}}.*$//' | tr -d \' | tr -d \")
-
-    # echo $template_value
 
     local result=unsupported
     if [[ $template_value == *"checksum"* ]]; then

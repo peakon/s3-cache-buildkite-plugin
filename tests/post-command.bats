@@ -20,7 +20,6 @@ setup() {
 }
 
 @test "Post-command succeeds" {
-
   run "$post_command_hook"
   assert_success
 }
