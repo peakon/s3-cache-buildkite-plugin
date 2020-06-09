@@ -141,6 +141,22 @@ setup() {
   assert_output --partial "Successfully restored cache-2-key-2"
 }
 
+@test "restoreCache from multiple plugin definitions" {
+  export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"restore\":[{\"keys\":[\"cache-1-key\"]},{\"keys\":[\"cache-2-key-1\",\"cache-2-key-2\"]}]}},{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"restore\":[{\"keys\":[\"cache-3-key\"]}]}}]"
+  
+  function s3Restore { 
+    echo "true"
+  }
+  export -f s3Restore
+  
+  output=$(restoreCache)
+  
+  assert_success
+  assert_output --partial "Successfully restored cache-1-key"
+  assert_output --partial "Successfully restored cache-2-key-1"
+  assert_output --partial "Successfully restored cache-3-key"
+}
+
 @test "saveCache with single cacheItem" {
   export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"save\":[{\"key\":\"v1-node-modules\",\"paths\":[\"node_modules\"]}]}}]"
 

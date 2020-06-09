@@ -2,7 +2,7 @@
 
 # returns a JSON object with plugin configuration 
 function getPluginConfig {
-  local config=$(echo $BUILDKITE_PLUGINS | jq '. | map(to_entries) | flatten | map(select(.key | match("peakon/s3-cache";"i"))) | .[0].value')
+  local config=$(echo $BUILDKITE_PLUGINS | jq '. | map(to_entries) | flatten | map(select(.key | match("peakon/s3-cache";"i"))) | map(.value)')
   if [[ "$config" == "null" ]]; then
       echo "peakon/s3-cache plugin is misconfigured"
       exit 1
@@ -14,13 +14,13 @@ function getPluginConfig {
 # returns a JSON with restore config
 function getRestoreConfig {
   local pluginConfig=$(getPluginConfig)
-  echo $pluginConfig | jq '.restore'
+  echo $pluginConfig | jq '. | map(.restore) | flatten'
 }
 
 # returns a JSON with save config
 function getSaveConfig {
   local pluginConfig=$(getPluginConfig)
-  echo $pluginConfig | jq '.save'
+  echo $pluginConfig | jq '. | map(.save) | flatten'
 }
 
 # $1 template string
