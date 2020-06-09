@@ -151,6 +151,7 @@ function saveCache {
         echo "Overwriting existing cache for key: $key"
       else 
         echo "Cache already exists (and will not be updated) for key: $key"
+        continue
       fi
       local isSaved=$(s3Upload "$key" "$paths")
       if [[ "$isSaved" == "true" ]]; then
