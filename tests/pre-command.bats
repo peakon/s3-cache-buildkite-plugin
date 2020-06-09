@@ -26,6 +26,7 @@ function teardown() {
 
 @test "Pre-command succeeds to restore singe cache item" { 
   export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"restore\":[{\"keys\":[\"v1-cache-key\"]}]}}]"
+  export BUILDKITE_PLUGIN_S3_CACHE_RESTORE_0_KEYS_0=v1-cache-key
 
   stub aws \
     "s3 cp s3://${BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME}/${BUILDKITE_ORGANIZATION_SLUG}/${BUILDKITE_PIPELINE_SLUG}/v1-cache-key.tar.gz - : echo true"
@@ -40,6 +41,7 @@ function teardown() {
 
 @test "Pre-command succeeds to restore from a fallback key if first key is missing" {
   export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"restore\":[{\"keys\":[\"cache-key-missing\",\"cache-key-exists\"]}]}}]"
+  export BUILDKITE_PLUGIN_S3_CACHE_RESTORE_0_KEYS_0=cache-key-missing
   
   stub aws \
     "s3 cp s3://${BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME}/${BUILDKITE_ORGANIZATION_SLUG}/${BUILDKITE_PIPELINE_SLUG}/cache-key-missing.tar.gz - : echo 'failed' && exit 1" \

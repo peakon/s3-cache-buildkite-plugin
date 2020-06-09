@@ -14,13 +14,13 @@ function getPluginConfig {
 # returns a JSON with restore config
 function getRestoreConfig {
   local pluginConfig=$(getPluginConfig)
-  echo $pluginConfig | jq '. | map(.restore) | flatten'
+  echo $pluginConfig | jq --arg key0 "${BUILDKITE_PLUGIN_S3_CACHE_RESTORE_0_KEYS_0:-}" 'map(select((.restore[0].keys[0] == $key0) and (.restore[0].keys[0] | length > 0))) | map(.restore) | flatten'
 }
 
 # returns a JSON with save config
 function getSaveConfig {
   local pluginConfig=$(getPluginConfig)
-  echo $pluginConfig | jq '. | map(.save) | flatten'
+  echo $pluginConfig | jq --arg key0 "${BUILDKITE_PLUGIN_S3_CACHE_SAVE_0_KEY:-}" 'map(select(.save[0].key == $key0)) and (.save[0].key | length > 0))) | map(.save) | flatten'
 }
 
 # $1 template string

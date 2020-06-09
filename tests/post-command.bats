@@ -20,6 +20,7 @@ setup() {
 }
 
 @test "Post-command succeeds" {
+  export BUILDKITE_PLUGIN_S3_CACHE_SAVE_0_KEY=v1-node-modules
   run "$post_command_hook"
   assert_success
 }
