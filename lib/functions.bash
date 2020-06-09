@@ -20,7 +20,7 @@ function getRestoreConfig {
 # returns a JSON with save config
 function getSaveConfig {
   local pluginConfig=$(getPluginConfig)
-  echo $pluginConfig | jq --arg key0 "${BUILDKITE_PLUGIN_S3_CACHE_SAVE_0_KEY:-}" 'map(select(.save[0].key == $key0)) and (.save[0].key | length > 0))) | map(.save) | flatten'
+  echo $pluginConfig | jq --arg key0 "${BUILDKITE_PLUGIN_S3_CACHE_SAVE_0_KEY:-}" 'map(select((.save[0].key == $key0) and (.save[0].key | length > 0))) | map(.save) | flatten'
 }
 
 # $1 template string
@@ -113,7 +113,7 @@ function makeTempFile {
 
 function saveCache {
   local saveConfig=$(getSaveConfig)
-  if [[ "$saveConfig" == "null" ]]; then 
+  if [[ "$saveConfig" == "[]" ]]; then
       echo "No save config found, skipping"
       return
   fi
@@ -167,7 +167,7 @@ function saveCache {
 
 function restoreCache {
   local restoreConfig=$(getRestoreConfig)
-  if [[ "$restoreConfig" == "null" ]]; then 
+  if [[ "$restoreConfig" == "[]" ]]; then
       echo "No restore config found, skipping"
       return
   fi
