@@ -5,5 +5,7 @@ set -eEuo pipefail
 _source_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 source "${_source_dir}/lib/functions.bash"
 
+env 
+
 cd "${BUILDKITE_BUILD_CHECKOUT_PATH}"
 restoreCache
