@@ -69,12 +69,9 @@ function s3Path {
 # $1 - cacheKey
 function s3Exists {
   local s3Key=$(s3ObjectKey "$1")
-  aws s3api head-object --bucket "$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME" --key $s3Key || not_exist=true
-  if [ $not_exist ]; then
-    echo "false"
-  else
-    echo "true"
-  fi
+  local s3KeyExists="true"
+  aws s3api head-object --bucket "$BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME" --key $s3Key &>/dev/null || s3KeyExists=false
+  echo "$s3KeyExists"
 }
 
 # $1 - cacheKey
