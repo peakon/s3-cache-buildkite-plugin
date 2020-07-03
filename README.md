@@ -1,5 +1,7 @@
 # S3 Cache Buildkite Plugin
 
+![CI](https://github.com/peakon/s3-cache-buildkite-plugin/workflows/CI/badge.svg?branch=master)
+
 Save and restore cache to and from AWS S3.
 
 ## Example
