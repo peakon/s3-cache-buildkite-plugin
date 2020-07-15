@@ -3,6 +3,7 @@
 set -eEuo pipefail
 
 _source_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+# shellcheck disable=SC1090
 source "${_source_dir}/lib/functions.bash"
 
 cd "${BUILDKITE_BUILD_CHECKOUT_PATH}"

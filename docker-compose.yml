@@ -10,3 +10,9 @@ services:
     command: ['--id', 'peakon/s3-cache']
     volumes:
       - ".:/plugin:ro"
+  shellcheck:
+    image: koalaman/shellcheck-alpine:latest
+    working_dir: "/plugin"
+    command: ["shellcheck", "lib/functions.bash", "hooks/pre-command", "hooks/post-command"]
+    volumes:
+      - ".:/plugin"
