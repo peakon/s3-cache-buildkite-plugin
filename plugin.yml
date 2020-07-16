@@ -2,9 +2,11 @@ name: AWS S3 cache plugin
 description: Save / restore cache to / from AWS S3 bucket
 author: https://github.com/peakon
 requirements:
-  - docker
   - aws
   - tar
+  - awk
+  - sed
+  - jq
 configuration:
   properties:
     fail_on_error:

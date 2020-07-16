@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-load '/usr/local/lib/bats/load.bash'
+load "$BATS_PATH/load.bash"
 
 tmp_dir=$(mktemp -d -t s3-cache-temp.XXXXXXXXXX)
 post_command_hook="$PWD/hooks/post-command"
@@ -20,14 +20,7 @@ setup() {
 }
 
 @test "Post-command succeeds" {
-  cd "$BUILDKITE_BUILD_CHECKOUT_PATH"
-
-  stub docker "build"
-
-  stub docker \
-    "run --label com.buildkite.job-id=${BUILDKITE_JOB_ID} --workdir=/workdir --volume=${BUILDKITE_BUILD_CHECKOUT_PATH}:/workdir -it --rm -e BUILDKITE_BUILD_ID -e BUILDKITE_JOB_ID -e BUILDKITE_PLUGINS -e BUILDKITE_PIPELINE_SLUG -e HTTP_PROXY -e HTTPS_PROXY s3-cache-buildkite-plugin:$BUILDKITE_JOB_ID --action=restore --bucket=bucket --keyPrefix=$BUILDKITE_PIPELINE_SLUG --stepExitCode=0"
-
+  export BUILDKITE_PLUGIN_S3_CACHE_SAVE_0_KEY=v1-node-modules
   run "$post_command_hook"
-
   assert_success
 }

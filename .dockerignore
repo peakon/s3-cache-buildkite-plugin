@@ -1,8 +1,0 @@
-node_modules
-hooks
-tests
-.tmp
-plugin.yml
-README.md
-docker-compose.yml
-lib/*.spec.js

@@ -10,13 +10,9 @@ services:
     command: ['--id', 'peakon/s3-cache']
     volumes:
       - ".:/plugin:ro"
-    
-  localstack:
-    image: localstack/localstack
-    ports:
-      - "4566:4566"
-    environment:
-      - SERVICES=s3
-    # volumes:
-      # - "./.localstack:/tmp/localstack"
-      # - "/var/run/docker.sock:/var/run/docker.sock"
+  shellcheck:
+    image: koalaman/shellcheck-alpine:latest
+    working_dir: "/plugin"
+    command: ["shellcheck", "lib/functions.bash", "hooks/pre-command", "hooks/post-command"]
+    volumes:
+      - ".:/plugin"

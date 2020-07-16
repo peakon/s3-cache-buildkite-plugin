@@ -1,5 +1,7 @@
 # S3 Cache Buildkite Plugin
 
+![CI](https://github.com/peakon/s3-cache-buildkite-plugin/workflows/CI/badge.svg?branch=master)
+
 Save and restore cache to and from AWS S3.
 
 ## Example
@@ -10,7 +12,7 @@ Add the following to your `pipeline.yml`:
 steps:
   - command: npm install && npm test
     plugins:
-      - peakon/s3-cache#v1.1.0:
+      - peakon/s3-cache#v2.0.0-rc.1:
           save:
             - key: 'v1-node-modules-{{ checksum("package-lock.json") }}' # required
               paths: [ "node_modules" ] # required, array of strings
