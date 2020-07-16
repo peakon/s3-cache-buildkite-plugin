@@ -12,7 +12,7 @@ Add the following to your `pipeline.yml`:
 steps:
   - command: npm install && npm test
     plugins:
-      - peakon/s3-cache#v2.0.0-rc.1:
+      - peakon/s3-cache#v2.0.0:
           save:
             - key: 'v1-node-modules-{{ checksum("package-lock.json") }}' # required
               paths: [ "node_modules" ] # required, array of strings
