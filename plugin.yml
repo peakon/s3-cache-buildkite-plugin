@@ -11,6 +11,8 @@ configuration:
   properties:
     fail_on_error:
       type: boolean
+    aws_profile:
+      type: string
     save:
       type: array
       minimum: 1
