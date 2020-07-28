@@ -50,6 +50,13 @@ You can specify either `save` or `restore` or both of them for a single pipeline
 - `.Environment.SOME_VAR` - a value of environment variable `SOME_VAR`
 
 
+#### AWS profiles
+
+You can specify a custom AWS profile to be used by AWS CLI
+
+- in pipeline YAML (`aws_profile: profile_name`)
+- via `BUILDKITE_PLUGIN_S3_CACHE_AWS_PROFILE` environment variable (e.g. inside agent environment hook).
+
 ## Developing
 
 To run the tests:
