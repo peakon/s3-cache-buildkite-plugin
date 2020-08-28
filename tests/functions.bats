@@ -58,6 +58,14 @@ setup() {
   assert_output "cache-key-1-foo_bar__buz"
 }
 
+@test "getCacheKey with BUILDKITE_* env var that contains & in its value" {
+  export BUILDKITE_FOO='foo/bar&buz'
+  output=$(getCacheKey "cache-key-1-{{ .Environment.BUILDKITE_FOO }}")
+  unset BUILDKITE_FOO
+  assert_success
+  assert_output "cache-key-1-foo_bar_buz"
+}
+
 @test "getCacheKey with non-BUILDKITE_* env var reference in template" {
   export FOO=bar
   output=$(getCacheKey "cache-key-1-{{ .Environment.FOO }}")

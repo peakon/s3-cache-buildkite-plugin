@@ -46,7 +46,7 @@ function getCacheKey {
     elif [[ $template_value == *".Environment.BUILDKITE_"* ]]; then
       local var_name
       var_name="${template_value//\.Environment\./}"
-      result=$(echo "${!var_name}" | sed -e 's/[\/\\\]/_/g')
+      result=$(echo "${!var_name}" | sed -e 's/[^a-zA-Z0-9]/_/g')
     elif [[ "$template_value" == "epoch" ]]; then
       result=$(date +%s)
     fi
