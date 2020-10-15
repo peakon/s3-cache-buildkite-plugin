@@ -15,6 +15,7 @@ steps:
       - peakon/s3-cache#v2.1.3:
           id: CACHE_IDENTIFIER # optional, default: none
           aws_profile: aws-profile-name # optional, default: none
+          restore_dry_run: false # set it to "true" to only check if cacheKey is present on S3 (no download / restoring)
           save:
             - key: 'v1-node-modules-{{ checksum("package-lock.json") }}' # required
               paths: [ "node_modules" ] # required, array of strings
@@ -44,7 +45,7 @@ In some cases you may need to build a conditional logic in the build command bas
 
 To support this use-case, this plugin exports environment variables that can be used during a `command` step. The feature is opt-in and requires `id` to be specified in plugin configuration. 
 
-For example:
+For example, this step generates a cache of `node_modules` (which is then used by all jobs that need it):
 
 ```yml
 steps:
@@ -52,9 +53,13 @@ steps:
     plugins:
       - peakon/s3-cache:
           id: npm
-          restore_dry_run: true 
+          restore_dry_run: true # This saves runtime, but doesn't check for integrity 
           restore:
             - keys: [ 'v1-node-modules-{{ checksum "package-lock.json" }}' ]
+          save:
+            - key: 'v1-node-modules-{{ checksum("package-lock.json") }}'
+              paths: [ "node_modules" ]
+
 ```
 
 
