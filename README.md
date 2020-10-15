@@ -57,7 +57,7 @@ steps:
           restore:
             - keys: [ 'v1-node-modules-{{ checksum "package-lock.json" }}' ]
           save:
-            - key: 'v1-node-modules-{{ checksum("package-lock.json") }}'
+            - key: 'v1-node-modules-{{ checksum "package-lock.json" }}'
               paths: [ "node_modules" ]
 
 ```
