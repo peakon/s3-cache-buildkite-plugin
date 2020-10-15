@@ -185,6 +185,10 @@ function saveCache {
   done < "$tempFile"
 }
 
+function exportEnvVar {
+  export "$1=$2"
+}
+
 function restoreCache {
   local restoreConfig
   restoreConfig=$(getRestoreConfig)
@@ -196,9 +200,11 @@ function restoreCache {
   local tempFile
   tempFile=$(makeTempFile)
   getCacheItemsForRestore "$restoreConfig" > "$tempFile"
-
+  
+  local lineNumber=0
   while read -r cacheItemKeyTemplates
   do
+    local index=0
     # shellcheck disable=SC2206
     local cacheItemKeysTemplatesArray=($cacheItemKeyTemplates)
     for cacheItemKeyTemplate in "${cacheItemKeysTemplatesArray[@]}"
@@ -209,12 +215,20 @@ function restoreCache {
       cacheItemKeyTemplateDecoded=$(echo "$cacheItemKeyTemplate" | base64 -d)
       cacheKey=$(getCacheKey "$cacheItemKeyTemplateDecoded")
       isRestored=$(s3Restore "$cacheKey")
+      
+      # Provide information if cache was hit (only if cache has name)
+      if [[ -n "${BUILDKITE_PLUGIN_S3_CACHE_ID:-}" ]]; then
+        exportEnvVar "BUILDKITE_PLUGIN_S3_CACHE_${BUILDKITE_PLUGIN_S3_CACHE_ID}_${lineNumber}_KEY_${index}_HIT=${isRestored}"
+      fi
+
       if [[ "$isRestored" == "true" ]]; then
         echo "Successfully restored $cacheKey"
         break
       else
         echo "Failed to restore $cacheKey. The following error occured: ${isRestored}"
       fi
+      ((index+=1))
     done
+    ((lineNumber+=1))
   done < "$tempFile"
 }

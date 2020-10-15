@@ -13,6 +13,8 @@ steps:
   - command: npm install && npm test
     plugins:
       - peakon/s3-cache#v2.1.3:
+          id: CACHE_IDENTIFIER # optional, default: none
+          aws_profile: aws-profile-name # optional, default: none
           save:
             - key: 'v1-node-modules-{{ checksum("package-lock.json") }}' # required
               paths: [ "node_modules" ] # required, array of strings
@@ -35,10 +37,22 @@ Make sure to set `BUILDKITE_PLUGIN_S3_CACHE_BUCKET_NAME=your-cache-bucket-name` 
 
 You can specify either `save` or `restore` or both of them for a single pipeline step.
 
-#### `save` properties
 
+#### Checking if cache was successfully restored
 
-#### `restore` properties
+In some cases there may be a need to build a conditional logic in the build command based on the results of cache restore operation (for example, to avoid re-generating the cache which already exists and was restored successfully).
+To support this use-case, this plugins exports environment variables that can be then used during a `command` step. The feature is opt-in and requires `id` to be specified in plugin configuration. 
+For example:
+
+```yml
+steps:
+  - command: "[ ! \"${BUILDKITE_PLUGIN_S3_CACHE_node_modules_0_KEY_0_HIT}\" =~ ^(true)$ ] && npm install"
+    plugins:
+      - peakon/s3-cache:
+          id: node_modules 
+          restore:
+            - keys: [ 'v1-node-modules-{{ checksum "package-lock.json" }}' ]
+```
 
 
 #### Supported functions
