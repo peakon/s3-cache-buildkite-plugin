@@ -186,7 +186,7 @@ function saveCache {
 }
 
 function exportEnvVar {
-  export "$1"
+  export "$1"="$2"
 }
 
 function restoreCache {
@@ -218,7 +218,7 @@ function restoreCache {
       
       # Provide information if cache was hit (only if cache has name)
       if [[ -n "${BUILDKITE_PLUGIN_S3_CACHE_ID:-}" ]]; then
-        exportEnvVar "BUILDKITE_PLUGIN_S3_CACHE_${BUILDKITE_PLUGIN_S3_CACHE_ID}_${lineNumber}_KEY_${index}_HIT=${isRestored}"
+        exportEnvVar "BUILDKITE_PLUGIN_S3_CACHE_${BUILDKITE_PLUGIN_S3_CACHE_ID}_${lineNumber}_KEY_${index}_HIT" "${isRestored}"
       fi
 
       if [[ "$isRestored" == "true" ]]; then

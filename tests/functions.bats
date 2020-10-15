@@ -195,7 +195,7 @@ setup() {
 
   function s3Restore { echo "true"; }
   function exportEnvVar {
-    exportedEnvironment+="$1"
+    exportedEnvironment+="$1=$2"
   }
   export -f s3Restore
   export -f exportEnvVar
@@ -214,7 +214,7 @@ setup() {
 
   function s3Restore { echo "false"; }
   function exportEnvVar {
-    exportedEnvironment+="$1"
+    exportedEnvironment+="$1=$2"
   }
   export -f s3Restore
   export -f exportEnvVar
@@ -239,7 +239,7 @@ setup() {
     fi
   }
   function exportEnvVar {
-    exportedEnvironment+="$1"
+    exportedEnvironment+="$1=$2"
   }
   export -f s3Restore
   export -f exportEnvVar
