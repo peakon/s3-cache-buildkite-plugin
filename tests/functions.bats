@@ -246,7 +246,7 @@ setup() {
   
   restoreCache
 
-  declare -a expected;
+  declare -a expected
   expected+="BUILDKITE_PLUGIN_S3_CACHE_FOO_BAR_0_KEY_0_HIT=false"
   expected+="BUILDKITE_PLUGIN_S3_CACHE_FOO_BAR_0_KEY_1_HIT=true"
   expected+="BUILDKITE_PLUGIN_S3_CACHE_FOO_BAR_1_KEY_0_HIT=true"
