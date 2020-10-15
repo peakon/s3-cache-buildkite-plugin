@@ -217,7 +217,7 @@ function restoreCache {
       
       # Only check if cache exists on S3 if "restore_dry_run: true"
       if [[ "${BUILDKITE_PLUGIN_S3_CACHE_RESTORE_DRY_RUN:-}" =~ ^(true)$ ]]; then
-        isRestored=$(s3Exists "$key")
+        isRestored=$(s3Exists "$cacheKey")
       else
         isRestored=$(s3Restore "$cacheKey")
       fi
