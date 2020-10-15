@@ -214,8 +214,14 @@ function restoreCache {
       local cacheKey
       cacheItemKeyTemplateDecoded=$(echo "$cacheItemKeyTemplate" | base64 -d)
       cacheKey=$(getCacheKey "$cacheItemKeyTemplateDecoded")
-      isRestored=$(s3Restore "$cacheKey")
       
+      # Only check if cache exists on S3 if "restore_dry_run: true"
+      if [[ "${BUILDKITE_PLUGIN_S3_CACHE_RESTORE_DRY_RUN:-}" =~ ^(true)$ ]]; then
+        isRestored=$(s3Exists "$key")
+      else
+        isRestored=$(s3Restore "$cacheKey")
+      fi
+
       # Provide information if cache was hit (only if cache has name)
       if [[ -n "${BUILDKITE_PLUGIN_S3_CACHE_ID:-}" ]]; then
         exportEnvVar "BUILDKITE_PLUGIN_S3_CACHE_${BUILDKITE_PLUGIN_S3_CACHE_ID}_${lineNumber}_KEY_${index}_HIT" "${isRestored}"

@@ -51,7 +51,8 @@ steps:
   - command: "[ ! \"${BUILDKITE_PLUGIN_S3_CACHE_npm_0_KEY_0_HIT}\" =~ ^(true)$ ] && npm install"
     plugins:
       - peakon/s3-cache:
-          id: npm 
+          id: npm
+          restore_dry_run: true 
           restore:
             - keys: [ 'v1-node-modules-{{ checksum "package-lock.json" }}' ]
 ```
