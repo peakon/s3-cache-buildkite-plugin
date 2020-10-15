@@ -186,7 +186,7 @@ function saveCache {
 }
 
 function exportEnvVar {
-  export "$1=$2"
+  export "$1"
 }
 
 function restoreCache {
