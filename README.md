@@ -12,7 +12,7 @@ Add the following to your `pipeline.yml`:
 steps:
   - command: npm install && npm test
     plugins:
-      - peakon/s3-cache#v2.1.3:
+      - peakon/s3-cache#v2.2.1:
           id: CACHE_IDENTIFIER # optional, default: none
           aws_profile: aws-profile-name # optional, default: none
           restore_dry_run: false # set it to "true" to only check if cacheKey is present on S3 (no download / restoring)
@@ -51,7 +51,7 @@ For example, this step generates a cache of `node_modules` (which is then used b
 steps:
   - command: "[ ! \"${BUILDKITE_PLUGIN_S3_CACHE_npm_0_KEY_0_HIT}\" =~ ^(true)$ ] && npm install"
     plugins:
-      - peakon/s3-cache:
+      - peakon/s3-cache#2.2.1:
           id: npm
           restore_dry_run: true # This saves runtime, but doesn't check for integrity 
           restore:
