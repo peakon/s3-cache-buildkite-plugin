@@ -13,6 +13,10 @@ configuration:
       type: boolean
     aws_profile:
       type: string
+    id:
+      type: string
+    restore_dry_run:
+      type: boolean
     save:
       type: array
       minimum: 1

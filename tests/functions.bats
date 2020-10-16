@@ -186,6 +186,109 @@ setup() {
   assert_output --partial "Successfully restored cache-3-key"
 }
 
+@test "restoreCache with named cache should export CACHE_HIT=true" {
+  export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"restore\":[{\"keys\":[\"v1-cache-key\"]}]}}]"
+  export BUILDKITE_PLUGIN_S3_CACHE_RESTORE_0_KEYS_0=v1-cache-key
+  export BUILDKITE_PLUGIN_S3_CACHE_ID="FOO_BAR"
+
+  declare -a exportedEnvironment;
+
+  function s3Restore { echo "true"; }
+  function exportEnvVar {
+    exportedEnvironment+="$1=$2"
+  }
+  export -f s3Restore
+  export -f exportEnvVar
+  
+  restoreCache
+
+  assert_equal "${exportedEnvironment[*]}" "BUILDKITE_PLUGIN_S3_CACHE_FOO_BAR_0_KEY_0_HIT=true"
+}
+
+@test "restoreCache with named cache should export CACHE_HIT=false" {
+  export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"restore\":[{\"keys\":[\"v1-cache-key\"]}]}}]"
+  export BUILDKITE_PLUGIN_S3_CACHE_RESTORE_0_KEYS_0=v1-cache-key
+  export BUILDKITE_PLUGIN_S3_CACHE_ID="FOO_BAR"
+
+  declare -a exportedEnvironment;
+
+  function s3Restore { echo "false"; }
+  function exportEnvVar {
+    exportedEnvironment+="$1=$2"
+  }
+  export -f s3Restore
+  export -f exportEnvVar
+  
+  restoreCache
+
+  assert_equal "${exportedEnvironment[*]}" "BUILDKITE_PLUGIN_S3_CACHE_FOO_BAR_0_KEY_0_HIT=false"
+}
+
+@test "restoreCache with named cache should correctly export CACHE_HIT in case of cache miss on the first key" {
+  export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"restore\":[{\"keys\":[\"cache-1-key-1\", \"cache-1-key-2\"]},{\"keys\":[\"cache-2-key-1\"]} ]}}]"
+  export BUILDKITE_PLUGIN_S3_CACHE_RESTORE_0_KEYS_0=cache-1-key-1
+  export BUILDKITE_PLUGIN_S3_CACHE_ID="FOO_BAR"
+
+  declare -a exportedEnvironment;
+
+  function s3Restore {
+    if [[ "$1" == "cache-1-key-1" ]]; then
+      echo "false"
+    else
+      echo "true"
+    fi
+  }
+  function exportEnvVar {
+    exportedEnvironment+="$1=$2"
+  }
+  export -f s3Restore
+  export -f exportEnvVar
+  
+  restoreCache
+
+  declare -a expected
+  expected+="BUILDKITE_PLUGIN_S3_CACHE_FOO_BAR_0_KEY_0_HIT=false"
+  expected+="BUILDKITE_PLUGIN_S3_CACHE_FOO_BAR_0_KEY_1_HIT=true"
+  expected+="BUILDKITE_PLUGIN_S3_CACHE_FOO_BAR_1_KEY_0_HIT=true"
+
+  assert_equal "${exportedEnvironment[*]}" "${expected[*]}"
+}
+
+@test "restoreCache with restore_dry_run=true should only check if cache exists on S3" {
+  export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"restore\":[{\"keys\":[\"v1-cache-key\"]}]}}]"
+  export BUILDKITE_PLUGIN_S3_CACHE_RESTORE_0_KEYS_0=v1-cache-key
+  export BUILDKITE_PLUGIN_S3_CACHE_RESTORE_DRY_RUN="true"
+
+  function s3Exists { echo "true"; }
+  export -f s3Exists
+  
+  output=$(restoreCache)
+
+  assert_success
+  assert_output --partial "Successfully restored v1-cache-key"
+}
+
+@test "restoreCache with id:FOO_BAR and restore_dry_run=true should export BUILDKITE_PLUGIN_S3_CACHE_FOO_BAR_0_KEY_0_HIT=false if cache is missing" {
+  export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"restore\":[{\"keys\":[\"v1-cache-key\"]}]}}]"
+  export BUILDKITE_PLUGIN_S3_CACHE_RESTORE_0_KEYS_0=v1-cache-key
+  export BUILDKITE_PLUGIN_S3_CACHE_RESTORE_DRY_RUN="true"
+  export BUILDKITE_PLUGIN_S3_CACHE_ID="FOO_BAR"
+
+  declare -a exportedEnvironment;
+
+  function s3Exists { echo "false"; }
+  function exportEnvVar {
+    exportedEnvironment+="$1=$2"
+  }
+  export -f s3Exists
+  export -f exportEnvVar
+  
+  restoreCache
+
+  assert_equal "${exportedEnvironment[*]}" "BUILDKITE_PLUGIN_S3_CACHE_FOO_BAR_0_KEY_0_HIT=false"
+}
+
+
 @test "saveCache with single cacheItem" {
   export BUILDKITE_PLUGINS="[{\"github.com/peakon/s3-cache-buildkite-plugin#v1.5.0\":{\"save\":[{\"key\":\"v1-node-modules\",\"paths\":[\"node_modules\"]}]}}]"
   export BUILDKITE_PLUGIN_S3_CACHE_SAVE_0_KEY=v1-node-modules
