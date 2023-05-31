@@ -314,3 +314,14 @@ setup() {
 # @test "saveCache with when=always" {
 #   echo true
 # }
+
+@test "s3ObjectKey without pipeline_name" {
+  run -0 s3ObjectKey file
+  assert_output "my-org/my-pipeline/file.tar.gz"
+}
+
+@test "s3ObjectKey with pipeline_name" {
+  export BUILDKITE_PLUGIN_S3_CACHE_PIPELINE_NAME="another-pipeline"
+  run -0 s3ObjectKey file
+  assert_output "my-org/another-pipeline/file.tar.gz"
+}
