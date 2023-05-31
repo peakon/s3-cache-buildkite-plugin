@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-load "$BATS_PATH/load.bash"
+load "$BATS_PLUGIN_PATH/load.bash"
 
 tmp_dir=$(mktemp -d -t s3-cache-temp.XXXXXXXXXX)
 pre_command_hook="$PWD/hooks/pre-command"

@@ -2,11 +2,11 @@ version: '3.7'
 
 services:
   tests:
-    image: buildkite/plugin-tester
+    image: buildkite/plugin-tester:v4.1.0
     volumes:
       - ".:/plugin:ro"
   lint:
-    image: buildkite/plugin-linter
+    image: buildkite/plugin-linter:v2.0.3
     command: ['--id', 'peakon/s3-cache']
     volumes:
       - ".:/plugin:ro"
