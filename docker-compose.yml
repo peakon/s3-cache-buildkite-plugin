@@ -6,7 +6,7 @@ services:
     volumes:
       - ".:/plugin:ro"
   lint:
-    image: buildkite/plugin-linter
+    image: buildkite/plugin-linter:v2.0.3
     command: ['--id', 'peakon/s3-cache']
     volumes:
       - ".:/plugin:ro"
