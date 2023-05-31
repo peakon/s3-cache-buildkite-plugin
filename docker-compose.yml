@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   tests:
-    image: buildkite/plugin-tester
+    image: buildkite/plugin-tester:v4.1.0
     volumes:
       - ".:/plugin:ro"
   lint:
