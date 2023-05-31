@@ -121,6 +121,7 @@ function s3Restore {
 function makeTempFile {
   tempFile=$(mktemp)
   cleanup() {
+    # shellcheck disable=SC2317
     rm "$tempFile"
   }
   trap cleanup EXIT
