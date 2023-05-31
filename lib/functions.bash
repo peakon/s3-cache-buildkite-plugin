@@ -69,7 +69,11 @@ function getCacheItemsForRestore {
 }
 
 function s3ObjectKey {
-  echo "${BUILDKITE_ORGANIZATION_SLUG}/${BUILDKITE_PIPELINE_SLUG}/${1}.tar.gz"
+  if [[ -n "${BUILDKITE_PLUGIN_S3_CACHE_PIPELINE_NAME:-}" ]]; then
+    echo "${BUILDKITE_ORGANIZATION_SLUG}/${BUILDKITE_PLUGIN_S3_CACHE_PIPELINE_NAME}/${1}.tar.gz"
+  else
+    echo "${BUILDKITE_ORGANIZATION_SLUG}/${BUILDKITE_PIPELINE_SLUG}/${1}.tar.gz"
+  fi
 }
 
 function s3Path {

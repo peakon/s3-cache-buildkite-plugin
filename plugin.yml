@@ -11,6 +11,8 @@ configuration:
   properties:
     fail_on_error:
       type: boolean
+    pipeline_namae:
+      type: string
     aws_profile:
       type: string
     id:
