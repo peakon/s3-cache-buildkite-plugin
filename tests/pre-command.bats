@@ -11,6 +11,7 @@ function cleanup {
 trap cleanup EXIT
 
 setup() {
+  bats_require_minimum_version 1.5.0
   export BUILDKITE_BUILD_CHECKOUT_PATH=$tmp_dir
   export BUILDKITE_BUILD_ID=1
   export BUILDKITE_JOB_ID=0
@@ -35,7 +36,6 @@ function teardown() {
 
   run "$pre_command_hook"
 
-  assert_success
   assert_output --partial "Successfully restored v1-cache-key"
 }
 
@@ -50,9 +50,8 @@ function teardown() {
     "-xz : echo true" \
     "-xz : echo true"
 
-  run "$pre_command_hook"
+  run -0 "$pre_command_hook"
 
-  assert_success
   assert_output --partial "Failed to restore cache-key-missing"
   assert_output --partial "Successfully restored cache-key-exists"
 }

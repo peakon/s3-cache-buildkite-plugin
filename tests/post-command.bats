@@ -11,6 +11,7 @@ function cleanup {
 trap cleanup EXIT
 
 setup() {
+  bats_require_minimum_version 1.5.0
   export BUILDKITE_BUILD_CHECKOUT_PATH=$tmp_dir
   export BUILDKITE_BUILD_ID=1
   export BUILDKITE_JOB_ID=0
@@ -21,6 +22,5 @@ setup() {
 
 @test "Post-command succeeds" {
   export BUILDKITE_PLUGIN_S3_CACHE_SAVE_0_KEY=v1-node-modules
-  run "$post_command_hook"
-  assert_success
+  run -0 "$post_command_hook"
 }
