@@ -101,7 +101,7 @@ function s3Upload {
   localPaths=($2)
   set +e
   # shellcheck disable=SC2068
-  if ! (tar --ignore-failed-read -cz ${localPaths[@]} | aws "${aws_cli_args[@]}" s3 cp - "$s3_path"); then
+  if ! (tar -czf /tmp/file.tar.gz ${localPaths[@]} && aws "${aws_cli_args[@]}" s3 cp /tmp/file.tar.gz "$s3_path"); then
     echo "false"
   else
     echo "true"
