@@ -96,12 +96,14 @@ function s3Exists {
 function s3Upload {
   local s3_path
   local localPaths
+  local tempFile
   s3_path=$(s3Path "$1")
   # shellcheck disable=SC2206
   localPaths=($2)
+  tempFile=$(makeTempFile)
   set +e
   # shellcheck disable=SC2068
-  if ! (tar -czf /tmp/file.tar.gz ${localPaths[@]} && aws "${aws_cli_args[@]}" s3 cp /tmp/file.tar.gz "$s3_path"); then
+  if ! (tar -czf "$tempFile" ${localPaths[@]} && aws "${aws_cli_args[@]}" s3 cp "$tempFile" "$s3_path" --quiet); then
     echo "false"
   else
     echo "true"
