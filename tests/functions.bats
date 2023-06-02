@@ -327,18 +327,21 @@ setup() {
   unset BUILDKITE_PLUGIN_S3_CACHE_PIPELINE_NAME
 }
 
-@test "s3Upload with existing and nont-existing paths" {
+@test "s3Upload with existing and non-existing paths" {
+  makeTempFile() { echo /tmp/file.tar.gz; }
+  export -f makeTempFile
   stub aws \
-    "s3 cp /tmp/file.tar.gz s3://bucket/my-org/my-pipeline/s3_path.tar.gz : :"
+    "s3 cp /tmp/file.tar.gz s3://bucket/my-org/my-pipeline/s3_path.tar.gz --quiet : :"
   stub tar \
     "-czf /tmp/file.tar.gz local_paths : :" \
-     "-czf /tmp/file.tar.gz local_paths : exit 1"
+    "-czf /tmp/file.tar.gz local_paths : exit 1"
 
   run -0 s3Upload s3_path local_paths
   assert_output "true"
   run -0 s3Upload s3_path local_paths
   assert_output "false"
 
+  unset makeTempFile
   unstub aws
   unstub tar
 }
