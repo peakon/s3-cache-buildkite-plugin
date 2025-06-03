@@ -42,7 +42,7 @@ function getCacheKey {
     result=unsupported
     if [[ $template_value == *"checksum"* ]]; then
       file_args=$(echo "$template_value" | sed -e 's/^checksum *//' -e 's/"//g')
-      result=$(cat $file_args 2>/dev/null | sh1asum | awk '{print $1}')
+      result=$(cat $file_args 2>/dev/null | sha1sum | awk '{print $1}')
     elif [[ $template_value == *".Environment.BUILDKITE_"* ]]; then
       local var_name
       var_name="${template_value//\.Environment\./}"
