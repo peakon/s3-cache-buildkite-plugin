@@ -41,8 +41,9 @@ function getCacheKey {
     local result
     result=unsupported
     if [[ $template_value == *"checksum"* ]]; then
-      function=${template_value/"checksum"/"sha1sum"}
-      result=$($function | awk '{print $1}')
+      file_args=$(echo "$template_value" | sed -e 's/^checksum *//' -e 's/"//g')
+      # shellcheck disable=SC2086
+      result=$(cat $file_args | sha1sum | awk '{print $1}')
     elif [[ $template_value == *".Environment.BUILDKITE_"* ]]; then
       local var_name
       var_name="${template_value//\.Environment\./}"
@@ -126,8 +127,8 @@ function s3Restore {
 
 function makeTempFile {
   tempFile=$(mktemp)
+  # shellcheck disable=SC2329
   cleanup() {
-    # shellcheck disable=SC2317
     rm "$tempFile"
   }
   trap cleanup EXIT

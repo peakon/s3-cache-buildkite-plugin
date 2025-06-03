@@ -33,9 +33,19 @@ setup() {
   assert_output --partial "cache-key-1-"
 }
 
-@test "getCacheKey with checksum of multiple files" {
+@test "getCacheKey with appended checksums of multiple files" {
   run -0 getCacheKey "cache-key-1-{{ checksum "tests/data/testfile.txt" }}-{{ checksum "tests/data/testfile2.txt" }}"
   assert_output "cache-key-1-147a61012231fd1a7bfe0c57c88a972e93817ace-ddf8dc24aa1f00e7281d5d00699e43a5a6a8360b"
+}
+
+@test "getCacheKey with single checksum of aggregate contents of multiple files" {
+  run -0 getCacheKey "cache-key-1-{{ checksum "tests/data/testfile.txt" "tests/data/testfile2.txt" }}"
+  assert_output "cache-key-1-b6d04e8b6f0abf8144680c627db5ad59e589af75"
+}
+
+@test "getCacheKey with single checksum of aggregate contents of multiple files using glob pattern" {
+  run -0 getCacheKey "cache-key-1-{{ checksum "tests/data/*.txt" }}"
+  assert_output "cache-key-1-26cd40b759f311f23f7c791b21a494dc9ef76941"
 }
 
 @test "getCacheKey with BUILDKITE_* env var reference in template" {
