@@ -61,7 +61,7 @@ steps:
 
 #### Supported functions
 
-- `checksum 'filename'` - sha256 hash of a `filename`
+- `checksum 'filename(s)'` - sha256 hash of `filename(s)` support glob expansion
 
 - `epoch` - time in seconds since Unix epoch (in UTC)
 
