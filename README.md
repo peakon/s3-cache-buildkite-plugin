@@ -12,7 +12,7 @@ Add the following to your `pipeline.yml`:
 steps:
   - command: npm install && npm test
     plugins:
-      - peakon/s3-cache#v2.2.1:
+      - peakon/s3-cache#v2.3.0:
           id: CACHE_IDENTIFIER # optional, default: none
           aws_profile: aws-profile-name # optional, default: none
           restore_dry_run: false # set it to "true" to only check if cacheKey is present on S3 (no download / restoring)
